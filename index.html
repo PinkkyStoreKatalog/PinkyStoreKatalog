@@ -24,6 +24,7 @@
   html,body{margin:0;padding:0;}
 
   body{
+    position:relative;
     font-family:'Plus Jakarta Sans', sans-serif;
     background:
       radial-gradient(circle at 8% 0%, rgba(255,111,165,0.22) 0%, rgba(255,111,165,0) 40%),
@@ -32,6 +33,50 @@
     min-height:100vh;
     color:var(--plum-text);
     padding:44px 20px 60px;
+  }
+
+  /* ---- Animated color-shifting layer ---- */
+  .color-shift{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background:linear-gradient(120deg,#FFD3E8,#FFE7B8,#C9F3F0,#E3D3FF,#FFD3E8);
+    background-size:400% 400%;
+    animation:colorShift 18s ease-in-out infinite;
+    mix-blend-mode:soft-light;
+    opacity:0.65;
+  }
+  @keyframes colorShift{
+    0%{ background-position:0% 50%; }
+    50%{ background-position:100% 50%; }
+    100%{ background-position:0% 50%; }
+  }
+
+  /* ---- Floating background decorations (flowers & teddy bear) ---- */
+  .bg-decor{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .deco{
+    position:absolute;
+    opacity:0.5;
+    filter:drop-shadow(0 4px 10px rgba(194,24,91,0.15));
+    animation:floatDrift ease-in-out infinite;
+  }
+  @keyframes floatDrift{
+    0%{ transform: translateY(0) rotate(0deg); }
+    50%{ transform: translateY(-22px) rotate(9deg); }
+    100%{ transform: translateY(0) rotate(0deg); }
+  }
+
+  /* ---- Keep real content above the decorative layers ---- */
+  .topbar, header, .catalog, footer{
+    position:relative;
+    z-index:1;
   }
 
   /* ---- Top bar / brand logo (top-left, bordered, bold) ---- */
@@ -125,30 +170,25 @@
     margin:0 auto;
   }
 
-  /* ---- Filter chips (decorative, optional) ---- */
-  .chips{
+  /* ---- Divider (replaces old filter chips) ---- */
+  .header-divider{
     display:flex;
-    flex-wrap:wrap;
     justify-content:center;
-    gap:10px;
-    margin:22px auto 0;
-    max-width:600px;
+    margin:24px auto 0;
   }
-  .chip{
-    font-family:'Baloo 2', sans-serif;
-    font-size:13px;
-    font-weight:600;
-    padding:8px 18px;
+  .divider-line{
+    width:100%;
+    max-width:1180px;
+    height:4px;
     border-radius:999px;
-    background:var(--white);
-    color:var(--pink-deep);
+    background-image:linear-gradient(90deg,#C2185B,#FF6FA5,#F4B942,#5FE3F0,#A64DFF,#C2185B);
+    background-size:300% 100%;
+    animation:dividerShift 5s linear infinite;
     box-shadow:var(--shadow-soft);
-    border:1.5px solid transparent;
-    cursor:default;
   }
-  .chip.active{
-    background:linear-gradient(120deg,#FF6FA5,#FF9BC4);
-    color:var(--white);
+  @keyframes dividerShift{
+    0%{ background-position:0% 50%; }
+    100%{ background-position:300% 50%; }
   }
 
   /* ---- Product grid ---- */
@@ -258,6 +298,21 @@
     z-index:2;
   }
 
+  .discount-badge{
+    position:absolute;
+    top:12px;
+    right:12px;
+    background-image:linear-gradient(120deg,#FF4F8B,#C2185B);
+    color:var(--white);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:11.5px;
+    padding:5px 10px;
+    border-radius:999px;
+    box-shadow:var(--shadow-soft);
+    z-index:2;
+  }
+
   .product-info{
     padding:14px 14px 16px;
     display:flex;
@@ -329,9 +384,46 @@
     font-weight:600;
   }
 
+  .product-media.zoomable{ cursor:zoom-in; }
+
+  .lightbox{
+    position:fixed;
+    inset:0;
+    background:rgba(58,31,43,0.85);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:999;
+    padding:30px;
+  }
+  .lightbox.show{ display:flex; }
+  .lightbox img{
+    max-width:min(90vw, 520px);
+    max-height:85vh;
+    border-radius:16px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.4);
+  }
+  .lightbox-close{
+    position:absolute;
+    top:20px;
+    right:26px;
+    color:#fff;
+    font-size:30px;
+    font-weight:700;
+    cursor:pointer;
+    line-height:1;
+    background:rgba(255,255,255,0.15);
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
   footer{
     text-align:center;
-    margin-top:44px;
+    margin-top:80px;
     font-size:13px;
     font-weight:700;
     letter-spacing:0.4px;
@@ -351,6 +443,20 @@
 </head>
 <body>
 
+  <div class="color-shift"></div>
+  <div class="bg-decor">
+    <span class="deco" style="top:5%; left:4%; font-size:34px; animation-duration:7s; animation-delay:0s;">🌸</span>
+    <span class="deco" style="top:12%; left:88%; font-size:30px; animation-duration:9s; animation-delay:.5s;">🌷</span>
+    <span class="deco" style="top:38%; left:2%; font-size:44px; animation-duration:8s; animation-delay:1s;">🧸</span>
+    <span class="deco" style="top:68%; left:92%; font-size:28px; animation-duration:6.5s; animation-delay:.2s;">🌼</span>
+    <span class="deco" style="top:85%; left:8%; font-size:26px; animation-duration:7.5s; animation-delay:.8s;">🎀</span>
+    <span class="deco" style="top:4%; left:48%; font-size:24px; animation-duration:10s; animation-delay:.3s;">🌺</span>
+    <span class="deco" style="top:97%; left:78%; font-size:20px; animation-duration:9.5s; animation-delay:1.2s;">✨</span>
+    <span class="deco" style="top:22%; left:20%; font-size:22px; animation-duration:8.5s; animation-delay:.6s;">🌷</span>
+    <span class="deco" style="top:78%; left:45%; font-size:32px; animation-duration:7s; animation-delay:1.5s;">🧸</span>
+    <span class="deco" style="top:92%; left:70%; font-size:26px; animation-duration:8s; animation-delay:.4s;">🌸</span>
+  </div>
+
   <div class="topbar">
     <div class="brand-wrap">
       <span class="spin-ring"></span>
@@ -364,16 +470,16 @@
   <header>
     <h1>Katalog Produk</h1>
     <p>Semua koleksi terbaru kami — tap "Order Now" untuk pesan langsung via WhatsApp.</p>
-    <div class="chips">
-      <span class="chip active">Semua</span>
-      <span class="chip">Dress</span>
-      <span class="chip">Outer</span>
-      <span class="chip">Blouse</span>
-    </div>
+    <div class="header-divider"><span class="divider-line"></span></div>
   </header>
 
   <div class="catalog" id="catalog">
     <div class="catalog-empty">Memuat produk…</div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close" id="lightboxClose">×</span>
+    <img id="lightboxImg" src="" alt="Preview gambar produk">
   </div>
 
   <footer>© 2026 Pinkky Store</footer>
@@ -399,10 +505,15 @@
       var mediaStyle = hasImage
         ? ''
         : ' style="background-image:linear-gradient(135deg,' + (p.gradientFrom || '#FF9BC4') + ',' + (p.gradientTo || '#FF6FA5') + ');"';
+      var mediaClass = hasImage ? 'product-media zoomable' : 'product-media';
+      var mediaView = hasImage ? ' data-view="' + escapeHtml(p.image) + '"' : '';
       var badgeHtml = (p.badge && String(p.badge).trim() !== '')
         ? '<span class="badge">' + escapeHtml(p.badge) + '</span>'
         : '';
-      var oldPriceHtml = (p.oldPrice !== '' && p.oldPrice !== null && p.oldPrice !== undefined)
+      var hasOldPrice = p.oldPrice !== '' && p.oldPrice !== null && p.oldPrice !== undefined && Number(p.oldPrice) > Number(p.price);
+      var discountPct = hasOldPrice ? Math.round((1 - Number(p.price) / Number(p.oldPrice)) * 100) : null;
+      var discountHtml = discountPct ? '<span class="discount-badge">-' + discountPct + '%</span>' : '';
+      var oldPriceHtml = hasOldPrice
         ? '<span class="old">' + formatRupiah(p.oldPrice) + '</span>'
         : '';
       var waText = encodeURIComponent('Halo, saya mau order ' + p.name);
@@ -413,8 +524,9 @@
       wrap.innerHTML =
         '<span class="spin-ring"></span>' +
         '<div class="product-card">' +
-          '<div class="product-media"' + mediaStyle + '>' + mediaInner + '</div>' +
+          '<div class="' + mediaClass + '"' + mediaStyle + mediaView + '>' + mediaInner + '</div>' +
           badgeHtml +
+          discountHtml +
           '<div class="product-info">' +
             '<div class="product-name">' + escapeHtml(p.name) + '</div>' +
             '<div class="product-price">' + oldPriceHtml + formatRupiah(p.price) + '</div>' +
@@ -423,6 +535,22 @@
         '</div>';
       return wrap;
     }
+
+    function openLightbox(src){
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightbox').classList.add('show');
+    }
+    function closeLightbox(){
+      document.getElementById('lightbox').classList.remove('show');
+      document.getElementById('lightboxImg').src = '';
+    }
+    document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox').addEventListener('click', function(e){
+      if (e.target.id === 'lightbox') closeLightbox();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') closeLightbox();
+    });
 
     function renderCatalog(data){
       var catalog = document.getElementById('catalog');
@@ -434,6 +562,11 @@
       }
       products.forEach(function(p){
         catalog.appendChild(buildCard(p, data.waNumber));
+      });
+      catalog.querySelectorAll('.product-media.zoomable').forEach(function(media){
+        media.addEventListener('click', function(){
+          openLightbox(media.getAttribute('data-view'));
+        });
       });
     }
 
