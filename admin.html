@@ -229,8 +229,9 @@
         <input type="number" id="f_price" placeholder="189000">
       </div>
       <div class="field">
-        <label>Harga Coret / Diskon (opsional)</label>
-        <input type="number" id="f_oldprice" placeholder="249000">
+        <label>Potongan Harga / Diskon dalam Rp (opsional)</label>
+        <input type="number" id="f_oldprice" placeholder="50000">
+        <div class="hint">Isi NOMINAL POTONGANNYA saja, misal diskon Rp50.000 → tulis 50000. Kosongkan kalau tidak ada diskon.</div>
       </div>
     </div>
 
@@ -477,7 +478,7 @@
       '.spin-ring{position:absolute;top:50%;left:50%;width:250%;height:180%;background:conic-gradient(from 0deg,#FF6FA5,#FFE066,#5FE3F0,#A64DFF,#FF6FA5);transform:translate(-50%,-50%);z-index:0;}' +
       '.product-card{position:relative;z-index:1;width:100%;height:100%;border-radius:15px;overflow:hidden;background:#fff;display:flex;flex-direction:column;}' +
       '.product-media{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:40px;}' +
-      '.product-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}' +
+      '.product-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;}' +
       '.badge{position:absolute;top:10px;left:10px;background:#fff;color:#C2185B;font-family:"Baloo 2",sans-serif;font-weight:700;font-size:10.5px;padding:4px 9px;border-radius:999px;z-index:2;}' +
       '.discount-badge{position:absolute;top:10px;right:10px;background:linear-gradient(120deg,#FF4F8B,#C2185B);color:#fff;font-family:"Baloo 2",sans-serif;font-weight:800;font-size:10.5px;padding:4px 9px;border-radius:999px;z-index:2;}' +
       '.product-info{padding:10px;display:flex;flex-direction:column;gap:5px;}' +
@@ -513,7 +514,7 @@
     document.getElementById('f_name').value = p.name || '';
     document.getElementById('f_badge').value = p.badge || '';
     document.getElementById('f_price').value = p.price || '';
-    document.getElementById('f_oldprice').value = p.oldPrice || '';
+    document.getElementById('f_oldprice').value = (p.oldPrice && Number(p.oldPrice) > Number(p.price)) ? (Number(p.oldPrice) - Number(p.price)) : '';
     document.getElementById('f_imageurl').value = (p.image && p.image.indexOf('data:') !== 0) ? p.image : '';
     document.getElementById('f_emoji').value = p.emoji || '';
     document.getElementById('f_gradFrom').value = p.gradientFrom || '#FF9BC4';
@@ -610,11 +611,12 @@
       if (existing) image = existing.image;
     }
 
+    var discountAmount = document.getElementById('f_oldprice').value ? Number(document.getElementById('f_oldprice').value) : 0;
     var product = {
       id: editingId || uid(),
       name: name,
       price: Number(price),
-      oldPrice: document.getElementById('f_oldprice').value ? Number(document.getElementById('f_oldprice').value) : '',
+      oldPrice: discountAmount > 0 ? (Number(price) + discountAmount) : '',
       badge: document.getElementById('f_badge').value.trim(),
       image: image || '',
       emoji: document.getElementById('f_emoji').value.trim() || '🛍️',
