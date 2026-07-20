@@ -1,0 +1,60 @@
+{
+  "waNumber": "6281234567890",
+  "products": [
+    {
+      "id": "p1",
+      "name": "Dress Rosalind Midi",
+      "price": 189000,
+      "oldPrice": 249000,
+      "badge": "Best Seller",
+      "image": "",
+      "emoji": "👗",
+      "gradientFrom": "#FF9BC4",
+      "gradientTo": "#FF6FA5"
+    },
+    {
+      "id": "p2",
+      "name": "Outer Coco Blazer",
+      "price": 215000,
+      "oldPrice": "",
+      "badge": "",
+      "image": "",
+      "emoji": "🧥",
+      "gradientFrom": "#A64DFF",
+      "gradientTo": "#FF6FA5"
+    },
+    {
+      "id": "p3",
+      "name": "Blouse Aria Satin",
+      "price": 139000,
+      "oldPrice": "",
+      "badge": "Baru",
+      "image": "",
+      "emoji": "👚",
+      "gradientFrom": "#F4B942",
+      "gradientTo": "#FF6FA5"
+    },
+    {
+      "id": "p4",
+      "name": "Palazzo Mila Pants",
+      "price": 169000,
+      "oldPrice": "",
+      "badge": "",
+      "image": "",
+      "emoji": "👖",
+      "gradientFrom": "#5FE3F0",
+      "gradientTo": "#FF6FA5"
+    },
+    {
+      "id": "p5",
+      "name": "Dress Kaia Flowy",
+      "price": 199000,
+      "oldPrice": "",
+      "badge": "",
+      "image": "",
+      "emoji": "👗",
+      "gradientFrom": "#FF8FB7",
+      "gradientTo": "#F4B942"
+    }
+  ]
+}

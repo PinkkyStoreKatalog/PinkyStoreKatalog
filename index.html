@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PINKKY STORE — Katalog Produk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blush-0:#FFF6FA;
+    --blush-1:#FFE3EE;
+    --pink-primary:#FF6FA5;
+    --pink-deep:#C2185B;
+    --plum-text:#3A1F2B;
+    --gold-accent:#F4B942;
+    --white:#FFFFFF;
+    --shadow-soft: 0 8px 24px rgba(194,24,91,0.12);
+    --shadow-lift: 0 16px 34px rgba(194,24,91,0.24);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    font-family:'Plus Jakarta Sans', sans-serif;
+    background:
+      radial-gradient(circle at 8% 0%, rgba(255,111,165,0.22) 0%, rgba(255,111,165,0) 40%),
+      radial-gradient(circle at 92% 100%, rgba(244,185,66,0.18) 0%, rgba(244,185,66,0) 40%),
+      linear-gradient(180deg, var(--blush-0) 0%, var(--blush-1) 100%);
+    min-height:100vh;
+    color:var(--plum-text);
+    padding:44px 20px 60px;
+  }
+
+  /* ---- Top bar / brand logo (top-left, bordered, bold) ---- */
+  .topbar{
+    max-width:1180px;
+    margin:0 auto 30px;
+    display:flex;
+    justify-content:flex-start;
+  }
+  .brand-wrap{
+    position:relative;
+    border-radius:18px;
+    padding:3px;
+    overflow:hidden;
+    box-shadow:var(--shadow-soft);
+    animation:dropIn 0.6s cubic-bezier(.2,.9,.25,1.2) both;
+  }
+  .brand-wrap .spin-ring{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:220%;
+    height:220%;
+    background: conic-gradient(from 0deg, #C2185B, #FF6FA5, #F4B942, #5FE3F0, #A64DFF, #C2185B);
+    transform: translate(-50%,-50%) rotate(0deg);
+    animation: spinRotate 7s linear infinite;
+    z-index:0;
+  }
+  .brand-box{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--white);
+    border-radius:15px;
+    padding:13px 28px;
+  }
+  .brand-mark{
+    font-size:24px;
+    line-height:1;
+  }
+  .brand-name{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(20px, 3vw, 28px);
+    letter-spacing:0.6px;
+    color:var(--pink-deep);
+    white-space:nowrap;
+  }
+  @keyframes dropIn{
+    from{ opacity:0; transform: translateY(-12px) scale(0.95); }
+    to{ opacity:1; transform: translateY(0) scale(1); }
+  }
+
+  /* ---- Header ---- */
+  header{
+    max-width:1180px;
+    margin:0 auto 34px;
+    text-align:center;
+  }
+  .eyebrow{
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--pink-deep);
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(30px, 5vw, 44px);
+    margin:0 0 10px;
+    background-image: linear-gradient(100deg, #C2185B, #FF6FA5, #F4B942, #FF6FA5, #C2185B);
+    background-size:250% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: titleShimmer 6s linear infinite;
+  }
+  @keyframes titleShimmer{
+    0%{ background-position: 0% center; }
+    100%{ background-position: -250% center; }
+  }
+  header p{
+    font-size:14.5px;
+    font-weight:500;
+    color:#8A4B66;
+    max-width:420px;
+    margin:0 auto;
+  }
+
+  /* ---- Filter chips (decorative, optional) ---- */
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin:22px auto 0;
+    max-width:600px;
+  }
+  .chip{
+    font-family:'Baloo 2', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    padding:8px 18px;
+    border-radius:999px;
+    background:var(--white);
+    color:var(--pink-deep);
+    box-shadow:var(--shadow-soft);
+    border:1.5px solid transparent;
+    cursor:default;
+  }
+  .chip.active{
+    background:linear-gradient(120deg,#FF6FA5,#FF9BC4);
+    color:var(--white);
+  }
+
+  /* ---- Product grid ---- */
+  .catalog{
+    max-width:1180px;
+    margin:36px auto 0;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(210px, 1fr));
+    gap:26px;
+  }
+
+  /* ==== Rotating-gradient border wrapper ==== */
+  .card-wrap{
+    position:relative;
+    aspect-ratio:9/16;
+    border-radius:22px;
+    padding:3px;
+    overflow:hidden;
+    box-shadow:var(--shadow-soft);
+    animation:cardIn 0.6s both;
+    transition: transform 0.32s cubic-bezier(.22,.75,.28,1.35), box-shadow 0.32s ease;
+  }
+  .catalog .card-wrap:nth-child(1){animation-delay:.02s;}
+  .catalog .card-wrap:nth-child(2){animation-delay:.06s;}
+  .catalog .card-wrap:nth-child(3){animation-delay:.10s;}
+  .catalog .card-wrap:nth-child(4){animation-delay:.14s;}
+  .catalog .card-wrap:nth-child(5){animation-delay:.18s;}
+  .catalog .card-wrap:nth-child(6){animation-delay:.22s;}
+  .catalog .card-wrap:nth-child(7){animation-delay:.26s;}
+  .catalog .card-wrap:nth-child(8){animation-delay:.30s;}
+
+  .card-wrap .spin-ring{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:250%;
+    height:180%;
+    background: conic-gradient(from 0deg, #FF6FA5, #FFE066, #5FE3F0, #A64DFF, #FF6FA5, #FFE066, #5FE3F0, #A64DFF, #FF6FA5);
+    transform: translate(-50%,-50%) rotate(0deg);
+    animation: spinRotate 5s linear infinite;
+    z-index:0;
+    transition: animation-duration 0.3s ease;
+  }
+
+  .card-wrap:hover{
+    box-shadow:var(--shadow-lift);
+    animation: wiggle 0.55s ease-in-out;
+  }
+  .card-wrap:hover .spin-ring{
+    animation-duration: 1.4s;
+  }
+
+  @keyframes wiggle{
+    0%{ transform: rotate(0deg) scale(1); }
+    20%{ transform: rotate(-2.2deg) scale(1.02); }
+    40%{ transform: rotate(2deg) scale(1.02); }
+    60%{ transform: rotate(-1.3deg) scale(1.015); }
+    80%{ transform: rotate(1deg) scale(1.01); }
+    100%{ transform: rotate(0deg) scale(1.015); }
+  }
+
+  .product-card{
+    position:relative;
+    z-index:1;
+    width:100%;
+    height:100%;
+    border-radius:19px;
+    overflow:hidden;
+    background:var(--white);
+    display:flex;
+    flex-direction:column;
+  }
+
+  .product-media{
+    position:relative;
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--white);
+    font-size:52px;
+    background-size:200% 200%;
+    animation:gradientShift 8s ease-in-out infinite;
+    overflow:hidden;
+  }
+  .product-media img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+
+  .badge{
+    position:absolute;
+    top:12px;
+    left:12px;
+    background:var(--white);
+    color:var(--pink-deep);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:11.5px;
+    padding:5px 11px;
+    border-radius:999px;
+    box-shadow:var(--shadow-soft);
+    z-index:2;
+  }
+
+  .product-info{
+    padding:14px 14px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    background:var(--white);
+  }
+  .product-name{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    color:var(--plum-text);
+    line-height:1.25;
+  }
+  .product-price{
+    font-size:13.5px;
+    font-weight:800;
+    color:var(--pink-deep);
+  }
+  .product-price .old{
+    font-weight:500;
+    color:#B5748E;
+    text-decoration:line-through;
+    margin-right:6px;
+    font-size:12px;
+  }
+
+  .order-btn{
+    margin-top:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    text-decoration:none;
+    color:var(--white);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    padding:10px 12px;
+    border-radius:12px;
+    background-image:linear-gradient(120deg,#FF6FA5,#FF4F8B,#C2185B,#FF6FA5);
+    background-size:200% 200%;
+    animation:gradientShift 6s ease-in-out infinite;
+    box-shadow:0 6px 14px rgba(194,24,91,0.28);
+    transition:transform 0.22s ease;
+  }
+  .order-btn:hover{ transform:translateY(-2px) scale(1.03); }
+  .order-btn:active{ transform:translateY(0); }
+
+  @keyframes spinRotate{
+    from{ transform: translate(-50%,-50%) rotate(0deg); }
+    to{ transform: translate(-50%,-50%) rotate(360deg); }
+  }
+  @keyframes gradientShift{
+    0%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+    100%{ background-position: 0% 50%; }
+  }
+  @keyframes cardIn{
+    from{ opacity:0; transform: translateY(16px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .catalog-empty{
+    grid-column:1 / -1;
+    text-align:center;
+    padding:40px 20px;
+    color:#8A4B66;
+    font-weight:600;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:44px;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.4px;
+    color:var(--pink-deep);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{ animation:none !important; transition:none !important; }
+  }
+
+  @media (max-width:420px){
+    .catalog{ grid-template-columns:repeat(2, 1fr); gap:16px; }
+    .product-info{ padding:10px 10px 12px; }
+    .product-name{ font-size:12.5px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand-wrap">
+      <span class="spin-ring"></span>
+      <div class="brand-box">
+        <span class="brand-mark">🌸</span>
+        <span class="brand-name">PINKKY STORE</span>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <h1>Katalog Produk</h1>
+    <p>Semua koleksi terbaru kami — tap "Order Now" untuk pesan langsung via WhatsApp.</p>
+    <div class="chips">
+      <span class="chip active">Semua</span>
+      <span class="chip">Dress</span>
+      <span class="chip">Outer</span>
+      <span class="chip">Blouse</span>
+    </div>
+  </header>
+
+  <div class="catalog" id="catalog">
+    <div class="catalog-empty">Memuat produk…</div>
+  </div>
+
+  <footer>© 2026 Pinkky Store</footer>
+
+  <script>
+    function escapeHtml(str){
+      return String(str ?? '').replace(/[&<>"']/g, function(c){
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+      });
+    }
+
+    function formatRupiah(n){
+      var num = Number(n);
+      if (isNaN(num)) return '';
+      return 'Rp' + num.toLocaleString('id-ID');
+    }
+
+    function buildCard(p, waNumber){
+      var hasImage = p.image && String(p.image).trim() !== '';
+      var mediaInner = hasImage
+        ? '<img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '">'
+        : '<span>' + (p.emoji || '🛍️') + '</span>';
+      var mediaStyle = hasImage
+        ? ''
+        : ' style="background-image:linear-gradient(135deg,' + (p.gradientFrom || '#FF9BC4') + ',' + (p.gradientTo || '#FF6FA5') + ');"';
+      var badgeHtml = (p.badge && String(p.badge).trim() !== '')
+        ? '<span class="badge">' + escapeHtml(p.badge) + '</span>'
+        : '';
+      var oldPriceHtml = (p.oldPrice !== '' && p.oldPrice !== null && p.oldPrice !== undefined)
+        ? '<span class="old">' + formatRupiah(p.oldPrice) + '</span>'
+        : '';
+      var waText = encodeURIComponent('Halo, saya mau order ' + p.name);
+      var waLink = 'https://wa.me/' + encodeURIComponent(waNumber || '') + '?text=' + waText;
+
+      var wrap = document.createElement('div');
+      wrap.className = 'card-wrap';
+      wrap.innerHTML =
+        '<span class="spin-ring"></span>' +
+        '<div class="product-card">' +
+          '<div class="product-media"' + mediaStyle + '>' + mediaInner + '</div>' +
+          badgeHtml +
+          '<div class="product-info">' +
+            '<div class="product-name">' + escapeHtml(p.name) + '</div>' +
+            '<div class="product-price">' + oldPriceHtml + formatRupiah(p.price) + '</div>' +
+            '<a href="' + waLink + '" class="order-btn" target="_blank" rel="noopener">🛒 Order Now</a>' +
+          '</div>' +
+        '</div>';
+      return wrap;
+    }
+
+    function renderCatalog(data){
+      var catalog = document.getElementById('catalog');
+      catalog.innerHTML = '';
+      var products = (data && data.products) || [];
+      if (products.length === 0){
+        catalog.innerHTML = '<div class="catalog-empty">Belum ada produk. Tambahkan lewat dashboard admin.</div>';
+        return;
+      }
+      products.forEach(function(p){
+        catalog.appendChild(buildCard(p, data.waNumber));
+      });
+    }
+
+    fetch('products.json?_=' + Date.now())
+      .then(function(res){ if(!res.ok) throw new Error('not ok'); return res.json(); })
+      .then(renderCatalog)
+      .catch(function(){
+        document.getElementById('catalog').innerHTML =
+          '<div class="catalog-empty">Gagal memuat produk.json. Pastikan file ini diakses lewat server/hosting (bukan dibuka langsung sebagai file), lalu refresh halaman.</div>';
+      });
+  </script>
+
+</body>
+</html>
