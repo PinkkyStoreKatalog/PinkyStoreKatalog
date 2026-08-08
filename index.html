@@ -135,86 +135,79 @@
     z-index:1;
   }
 
-  /* ---- Promo / countdown banner (sits above the brand logo) ---- */
+  /* ---- Promo banner: image-only auto-sliding carousel ---- */
   .promo-banner{
+    display:none;
+    position:relative;
     max-width:1180px;
-    margin:0 auto 20px;
-    display:flex;
-    align-items:center;
-    gap:16px;
-    padding:12px 18px;
-    border-radius:14px;
-    background-image:linear-gradient(120deg,#C2185B,#FF6FA5,#F4B942,#FF6FA5,#C2185B);
-    background-size:250% 250%;
-    animation:gradientShift 7s ease-in-out infinite;
-    box-shadow:var(--shadow-soft);
-    color:var(--white);
-  }
-  .promo-banner.has-image{
-    background-image: linear-gradient(120deg, rgba(194,24,91,0.55), rgba(255,111,165,0.35)), var(--banner-img);
-    background-size:cover;
-    background-position:center;
-    animation:none;
-  }
-  .promo-marquee{
-    flex:1 1 auto;
-    min-width:0;
+    margin:0 auto 26px;
+    border-radius:18px;
     overflow:hidden;
+    box-shadow:var(--shadow-lift);
+    aspect-ratio:16/6;
   }
-  .promo-track{
+  .banner-track{
     display:flex;
-    width:max-content;
-    animation:marqueeSlide 15s linear infinite;
+    width:100%;
+    height:100%;
+    transition:transform 0.55s cubic-bezier(.4,0,.2,1);
   }
-  .promo-msg{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    white-space:nowrap;
-    padding-right:56px;
-    font-family:'Baloo 2', sans-serif;
-    font-weight:700;
-    font-size:13.5px;
-    letter-spacing:0.2px;
+  .banner-track img{
+    flex:0 0 100%;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
   }
-  @keyframes marqueeSlide{
-    from{ transform:translateX(0); }
-    to{ transform:translateX(-50%); }
-  }
-  .promo-timer{
-    flex:0 0 auto;
-    display:flex;
-    align-items:center;
-    gap:5px;
-  }
-  .promo-timer .unit{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    background:rgba(255,255,255,0.22);
-    border-radius:9px;
-    padding:5px 9px;
-    min-width:40px;
-  }
-  .promo-timer .unit span.val{
-    font-family:'Baloo 2', sans-serif;
+  .banner-arrow{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    border:none;
+    background:rgba(255,255,255,0.75);
+    color:var(--pink-deep);
+    font-size:20px;
     font-weight:800;
-    font-size:14.5px;
     line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:2;
+    box-shadow:var(--shadow-soft);
+    transition:background 0.2s ease, transform 0.2s ease;
   }
-  .promo-timer .unit span.lbl{
-    font-size:8.5px;
-    font-weight:700;
-    letter-spacing:0.5px;
-    text-transform:uppercase;
-    opacity:0.85;
-    margin-top:2px;
+  .banner-arrow:hover{
+    background:var(--white);
+    transform:translateY(-50%) scale(1.08);
   }
-  .promo-timer .colon{
-    font-family:'Baloo 2', sans-serif;
-    font-weight:800;
-    font-size:14.5px;
-    opacity:0.8;
+  .banner-arrow.left{ left:12px; }
+  .banner-arrow.right{ right:12px; }
+  .banner-dots{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:12px;
+    display:flex;
+    justify-content:center;
+    gap:7px;
+    z-index:2;
+  }
+  .banner-dots .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.6);
+    cursor:pointer;
+    transition:background 0.2s ease, width 0.2s ease;
+  }
+  .banner-dots .dot.active{
+    background:var(--white);
+    width:20px;
+    border-radius:5px;
   }
 
   /* ---- Top bar / brand logo (top-left, bordered, bold) ---- */
@@ -610,9 +603,8 @@
     .bg-decor .deco:nth-child(n+5){ display:none; }
     .deco{ opacity:0.35; }
     .header-divider{ margin-top:18px; }
-    .promo-banner{ padding:10px 12px; gap:10px; }
-    .promo-msg{ font-size:12px; padding-right:40px; }
-    .promo-timer .unit{ min-width:34px; padding:4px 6px; }
+    .promo-banner{ aspect-ratio:16/9; border-radius:14px; margin-bottom:20px; }
+    .banner-arrow{ width:30px; height:30px; font-size:16px; }
   }
 </style>
 </head>
@@ -638,19 +630,10 @@
   </div>
 
   <div class="promo-banner" id="promoBanner">
-    <div class="promo-marquee">
-      <div class="promo-track">
-        <span class="promo-msg">🎉 Flash Sale Hari Ini! Diskon Spesial, Buruan Order Sebelum Kehabisan 🎉</span>
-        <span class="promo-msg">🎉 Flash Sale Hari Ini! Diskon Spesial, Buruan Order Sebelum Kehabisan 🎉</span>
-      </div>
-    </div>
-    <div class="promo-timer" id="promoTimer">
-      <div class="unit"><span class="val" id="promoHours">00</span><span class="lbl">Jam</span></div>
-      <span class="colon">:</span>
-      <div class="unit"><span class="val" id="promoMinutes">00</span><span class="lbl">Menit</span></div>
-      <span class="colon">:</span>
-      <div class="unit"><span class="val" id="promoSeconds">00</span><span class="lbl">Detik</span></div>
-    </div>
+    <div class="banner-track" id="bannerTrack"></div>
+    <button class="banner-arrow left" id="bannerPrev" aria-label="Sebelumnya">‹</button>
+    <button class="banner-arrow right" id="bannerNext" aria-label="Berikutnya">›</button>
+    <div class="banner-dots" id="bannerDots"></div>
   </div>
 
   <div class="topbar">
@@ -782,23 +765,88 @@
       });
     }
 
-    function applyBannerImage(bannerImage){
-      var banner = document.getElementById('promoBanner');
-      if (!banner) return;
-      if (bannerImage && String(bannerImage).trim() !== ''){
-        banner.style.setProperty('--banner-img', 'url("' + bannerImage + '")');
-        banner.classList.add('has-image');
-      } else {
-        banner.classList.remove('has-image');
-        banner.style.removeProperty('--banner-img');
-      }
+    // ---------- promo banner carousel (image-only, auto-slide + manual arrows) ----------
+    var bannerState = { images: [], index: 0, timer: null };
+
+    function goToBannerSlide(idx){
+      var track = document.getElementById('bannerTrack');
+      var total = bannerState.images.length;
+      if (total === 0) return;
+      bannerState.index = ((idx % total) + total) % total;
+      track.style.transform = 'translateX(-' + (bannerState.index * 100) + '%)';
+      document.querySelectorAll('#bannerDots .dot').forEach(function(dot, i){
+        dot.classList.toggle('active', i === bannerState.index);
+      });
     }
+
+    function startBannerAutoplay(){
+      stopBannerAutoplay();
+      if (bannerState.images.length <= 1) return;
+      bannerState.timer = setInterval(function(){
+        goToBannerSlide(bannerState.index + 1);
+      }, 4500);
+    }
+    function stopBannerAutoplay(){
+      if (bannerState.timer) clearInterval(bannerState.timer);
+      bannerState.timer = null;
+    }
+
+    function initBannerCarousel(images){
+      var banner = document.getElementById('promoBanner');
+      var track = document.getElementById('bannerTrack');
+      var dotsWrap = document.getElementById('bannerDots');
+      var prevBtn = document.getElementById('bannerPrev');
+      var nextBtn = document.getElementById('bannerNext');
+
+      if (!images || images.length === 0){
+        banner.style.display = 'none';
+        return;
+      }
+
+      bannerState.images = images;
+      bannerState.index = 0;
+
+      track.innerHTML = images.map(function(src){
+        return '<img src="' + escapeHtml(src) + '" alt="Banner promo">';
+      }).join('');
+
+      dotsWrap.innerHTML = images.map(function(_, i){
+        return '<span class="dot' + (i === 0 ? ' active' : '') + '" data-dot="' + i + '"></span>';
+      }).join('');
+      dotsWrap.querySelectorAll('[data-dot]').forEach(function(dot){
+        dot.addEventListener('click', function(){
+          goToBannerSlide(Number(dot.getAttribute('data-dot')));
+          startBannerAutoplay();
+        });
+      });
+
+      var multi = images.length > 1;
+      prevBtn.style.display = multi ? 'flex' : 'none';
+      nextBtn.style.display = multi ? 'flex' : 'none';
+      dotsWrap.style.display = multi ? 'flex' : 'none';
+
+      banner.style.display = 'block';
+      track.style.transform = 'translateX(0%)';
+      startBannerAutoplay();
+    }
+
+    document.getElementById('bannerPrev').addEventListener('click', function(){
+      goToBannerSlide(bannerState.index - 1);
+      startBannerAutoplay();
+    });
+    document.getElementById('bannerNext').addEventListener('click', function(){
+      goToBannerSlide(bannerState.index + 1);
+      startBannerAutoplay();
+    });
 
     fetch('products.json?_=' + Date.now())
       .then(function(res){ if(!res.ok) throw new Error('not ok'); return res.json(); })
       .then(function(data){
         renderCatalog(data);
-        applyBannerImage(data && data.bannerImage);
+        var bannerImgs = (data && data.bannerImages && data.bannerImages.length)
+          ? data.bannerImages
+          : ((data && data.bannerImage) ? [data.bannerImage] : []);
+        initBannerCarousel(bannerImgs);
         hidePageLoader();
       })
       .catch(function(){
@@ -806,31 +854,6 @@
           '<div class="catalog-empty">Gagal memuat produk.json. Pastikan file ini diakses lewat server/hosting (bukan dibuka langsung sebagai file), lalu refresh halaman.</div>';
         hidePageLoader();
       });
-
-    function getPromoTarget(){
-      var target = new Date();
-      target.setHours(23, 59, 59, 999);
-      if (target.getTime() <= Date.now()){
-        target.setDate(target.getDate() + 1);
-      }
-      return target;
-    }
-
-    function pad(n){ return String(n).padStart(2, '0'); }
-
-    function tickPromoTimer(){
-      var target = getPromoTarget();
-      var diff = Math.max(0, target.getTime() - Date.now());
-      var hours = Math.floor(diff / 3600000);
-      var minutes = Math.floor((diff % 3600000) / 60000);
-      var seconds = Math.floor((diff % 60000) / 1000);
-      document.getElementById('promoHours').textContent = pad(hours);
-      document.getElementById('promoMinutes').textContent = pad(minutes);
-      document.getElementById('promoSeconds').textContent = pad(seconds);
-    }
-
-    tickPromoTimer();
-    setInterval(tickPromoTimer, 1000);
   </script>
 
 </body>
