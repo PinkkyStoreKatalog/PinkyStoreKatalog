@@ -388,9 +388,20 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
-  function showStatus(el, type, msg){
+  var statusTimers = new WeakMap();
+  function showStatus(el, type, msg, autoHideMs){
     el.className = 'status show ' + type;
     el.textContent = msg;
+    if (statusTimers.has(el)){
+      clearTimeout(statusTimers.get(el));
+    }
+    var duration = (autoHideMs === undefined) ? 3500 : autoHideMs;
+    if (duration > 0){
+      var t = setTimeout(function(){
+        el.classList.remove('show');
+      }, duration);
+      statusTimers.set(el, t);
+    }
   }
 
   function normalizeBannerImages(data){
@@ -420,7 +431,8 @@
     fetch('products.json?_=' + Date.now())
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(data){
-        if (data && !draft){
+        var currentDraft = localStorage.getItem(STORAGE_KEY);
+        if (data && !currentDraft){
           state.waNumber = data.waNumber || '';
           state.products = data.products || [];
           state.bannerImages = normalizeBannerImages(data);
@@ -514,16 +526,52 @@
 
   function renderPreview(){
     var cardsHtml = state.products.map(function(p){ return buildCardHtml(p, state.waNumber); }).join('');
-    var firstBanner = (state.bannerImages && state.bannerImages.length) ? state.bannerImages[0] : '';
-    var hasBanner = firstBanner && String(firstBanner).trim() !== '';
-    var bannerStyle = hasBanner
-      ? 'background-image:linear-gradient(120deg,rgba(194,24,91,0.55),rgba(255,111,165,0.35)),url(\'' + firstBanner + '\');background-size:cover;background-position:center;'
-      : 'background-image:linear-gradient(120deg,#C2185B,#FF6FA5,#F4B942,#FF6FA5,#C2185B);';
-    var bannerHtml = '<div style="max-width:1000px;margin:0 auto 16px;padding:12px 18px;border-radius:14px;color:#fff;font-family:\'Baloo 2\',sans-serif;font-weight:700;font-size:13px;' + bannerStyle + '">🎉 Flash Sale Hari Ini! Diskon Spesial</div>';
+    var images = (state.bannerImages || []).filter(function(x){ return x && String(x).trim() !== ''; });
+    var multi = images.length > 1;
+
+    var bannerHtml = '';
+    var bannerScript = '';
+    if (images.length > 0){
+      var trackImgs = images.map(function(src){
+        return '<img src="' + escapeHtml(src) + '" alt="Banner promo">';
+      }).join('');
+      var dots = images.map(function(_, i){
+        return '<span class="dot' + (i === 0 ? ' active' : '') + '" data-dot="' + i + '"></span>';
+      }).join('');
+      bannerHtml =
+        '<div class="promo-banner" id="promoBanner">' +
+          '<div class="banner-track" id="bannerTrack">' + trackImgs + '</div>' +
+          (multi ? '<button class="banner-arrow left" id="bannerPrev">‹</button>' : '') +
+          (multi ? '<button class="banner-arrow right" id="bannerNext">›</button>' : '') +
+          (multi ? '<div class="banner-dots" id="bannerDots">' + dots + '</div>' : '') +
+        '</div>';
+      bannerScript =
+        '<script>' +
+        'var bState={i:0,total:' + images.length + ',timer:null};' +
+        'function go(n){bState.i=((n%bState.total)+bState.total)%bState.total;' +
+        'document.getElementById("bannerTrack").style.transform="translateX(-"+(bState.i*100)+"%)";' +
+        'document.querySelectorAll("#bannerDots .dot").forEach(function(d,i){d.classList.toggle("active",i===bState.i);});}' +
+        'function auto(){if(bState.timer)clearInterval(bState.timer);if(bState.total>1){bState.timer=setInterval(function(){go(bState.i+1);},4500);}}' +
+        (multi ? 'document.getElementById("bannerPrev").addEventListener("click",function(){go(bState.i-1);auto();});' +
+                 'document.getElementById("bannerNext").addEventListener("click",function(){go(bState.i+1);auto();});' +
+                 'document.querySelectorAll("#bannerDots .dot").forEach(function(d){d.addEventListener("click",function(){go(Number(d.getAttribute("data-dot")));auto();});});' : '') +
+        'auto();' +
+        '<\/script>';
+    }
+
     var doc = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
       '<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">' +
       '<style>' +
       'body{font-family:"Plus Jakarta Sans",sans-serif;background:#FFF6FA;margin:0;padding:20px;}' +
+      '.promo-banner{position:relative;max-width:1000px;margin:0 auto 16px;border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgba(194,24,91,0.12);aspect-ratio:16/6;}' +
+      '.banner-track{display:flex;width:100%;height:100%;transition:transform 0.55s cubic-bezier(.4,0,.2,1);}' +
+      '.banner-track img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;display:block;}' +
+      '.banner-arrow{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,0.75);color:#C2185B;font-size:16px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}' +
+      '.banner-arrow.left{left:10px;}' +
+      '.banner-arrow.right{right:10px;}' +
+      '.banner-dots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;z-index:2;}' +
+      '.banner-dots .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.6);cursor:pointer;}' +
+      '.banner-dots .dot.active{background:#fff;width:16px;border-radius:4px;}' +
       '.catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;max-width:1000px;margin:0 auto;}' +
       '.card-wrap{position:relative;aspect-ratio:9/16;border-radius:18px;padding:3px;overflow:hidden;box-shadow:0 8px 24px rgba(194,24,91,0.12);}' +
       '.spin-ring{position:absolute;top:50%;left:50%;width:250%;height:180%;background:conic-gradient(from 0deg,#FF6FA5,#FFE066,#5FE3F0,#A64DFF,#FF6FA5);transform:translate(-50%,-50%);z-index:0;}' +
@@ -537,9 +585,10 @@
       '.product-price{font-size:12px;font-weight:800;color:#C2185B;}' +
       '.product-price .old{font-weight:500;color:#B5748E;text-decoration:line-through;margin-right:5px;font-size:11px;}' +
       '.order-btn{margin-top:4px;display:flex;align-items:center;justify-content:center;gap:5px;text-decoration:none;color:#fff;font-family:"Baloo 2",sans-serif;font-weight:700;font-size:11.5px;padding:8px;border-radius:10px;background:linear-gradient(120deg,#FF6FA5,#C2185B);}' +
-      '</style></head><body>' + bannerHtml + '<div class="catalog">' + (cardsHtml || '<p style="grid-column:1/-1;text-align:center;color:#8A4B66;">Belum ada produk</p>') + '</div></body></html>';
+      '</style></head><body>' + bannerHtml + '<div class="catalog">' + (cardsHtml || '<p style="grid-column:1/-1;text-align:center;color:#8A4B66;">Belum ada produk</p>') + '</div>' + bannerScript + '</body></html>';
     document.getElementById('previewFrame').srcdoc = doc;
   }
+
 
   // ---------- form ----------
   function clearForm(){
