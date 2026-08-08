@@ -279,8 +279,19 @@
       <label>Nomor WhatsApp (format: 62xxxxxxxxxx, tanpa + atau spasi)</label>
       <input type="text" id="s_wanumber" placeholder="6281234567890">
     </div>
+
+    <div class="field">
+      <label>Gambar Banner Promo (opsional)</label>
+      <input type="file" id="s_bannerfile" accept="image/*">
+      <div class="hint">Atau tempel link gambar di bawah ini (kalau diisi, ini yang dipakai):</div>
+      <input type="text" id="s_bannerurl" placeholder="https://... (kosongkan jika upload file di atas)" style="margin-top:6px;">
+      <div class="hint" style="margin-top:10px;">Preview:</div>
+      <div id="bannerPreviewBox" class="img-preview-box" style="height:140px; max-width:100%;">Belum ada gambar</div>
+    </div>
+
     <div class="btn-row">
       <button class="btn secondary" id="btnSaveSettings">Simpan Pengaturan</button>
+      <button class="btn ghost" id="btnClearBanner">🗑️ Hapus Gambar Banner</button>
     </div>
   </div>
 
@@ -344,7 +355,7 @@
 <script>
   var STORAGE_KEY = 'pinkky_products_draft';
   var GH_KEY = 'pinkky_gh_settings';
-  var state = { waNumber: '', products: [] };
+  var state = { waNumber: '', bannerImage: '', products: [] };
   var editingId = null;
 
   function uid(){ return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -402,6 +413,8 @@
   // ---------- render list + preview + settings ----------
   function renderAll(){
     document.getElementById('s_wanumber').value = state.waNumber || '';
+    document.getElementById('s_bannerurl').value = (state.bannerImage && state.bannerImage.indexOf('data:') !== 0) ? state.bannerImage : '';
+    setBannerPreview(state.bannerImage || null);
     renderList();
     renderPreview();
   }
@@ -469,6 +482,11 @@
 
   function renderPreview(){
     var cardsHtml = state.products.map(function(p){ return buildCardHtml(p, state.waNumber); }).join('');
+    var hasBanner = state.bannerImage && String(state.bannerImage).trim() !== '';
+    var bannerStyle = hasBanner
+      ? 'background-image:linear-gradient(120deg,rgba(194,24,91,0.55),rgba(255,111,165,0.35)),url(\'' + state.bannerImage + '\');background-size:cover;background-position:center;'
+      : 'background-image:linear-gradient(120deg,#C2185B,#FF6FA5,#F4B942,#FF6FA5,#C2185B);';
+    var bannerHtml = '<div style="max-width:1000px;margin:0 auto 16px;padding:12px 18px;border-radius:14px;color:#fff;font-family:\'Baloo 2\',sans-serif;font-weight:700;font-size:13px;' + bannerStyle + '">🎉 Flash Sale Hari Ini! Diskon Spesial</div>';
     var doc = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
       '<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">' +
       '<style>' +
@@ -486,7 +504,7 @@
       '.product-price{font-size:12px;font-weight:800;color:#C2185B;}' +
       '.product-price .old{font-weight:500;color:#B5748E;text-decoration:line-through;margin-right:5px;font-size:11px;}' +
       '.order-btn{margin-top:4px;display:flex;align-items:center;justify-content:center;gap:5px;text-decoration:none;color:#fff;font-family:"Baloo 2",sans-serif;font-weight:700;font-size:11.5px;padding:8px;border-radius:10px;background:linear-gradient(120deg,#FF6FA5,#C2185B);}' +
-      '</style></head><body><div class="catalog">' + (cardsHtml || '<p style="grid-column:1/-1;text-align:center;color:#8A4B66;">Belum ada produk</p>') + '</div></body></html>';
+      '</style></head><body>' + bannerHtml + '<div class="catalog">' + (cardsHtml || '<p style="grid-column:1/-1;text-align:center;color:#8A4B66;">Belum ada produk</p>') + '</div></body></html>';
     document.getElementById('previewFrame').srcdoc = doc;
   }
 
@@ -582,6 +600,38 @@
   document.getElementById('f_imageurl').addEventListener('input', refreshFormPreview);
   document.getElementById('f_imagefile').addEventListener('change', refreshFormPreview);
 
+  // ---------- banner image preview ----------
+  function setBannerPreview(src){
+    var box = document.getElementById('bannerPreviewBox');
+    if (src){
+      box.innerHTML = '<img src="' + src + '" alt="Preview banner">';
+      box.onclick = function(){ openLightbox(src); };
+      box.style.cursor = 'zoom-in';
+    } else {
+      box.innerHTML = 'Belum ada gambar';
+      box.onclick = null;
+      box.style.cursor = 'default';
+    }
+  }
+
+  async function refreshBannerPreview(){
+    var urlVal = document.getElementById('s_bannerurl').value.trim();
+    var file = document.getElementById('s_bannerfile').files[0];
+    if (urlVal){
+      setBannerPreview(urlVal);
+    } else if (file){
+      try{
+        var dataUrl = await fileToBase64(file);
+        setBannerPreview(dataUrl);
+      }catch(e){ setBannerPreview(null); }
+    } else {
+      setBannerPreview(state.bannerImage || null);
+    }
+  }
+
+  document.getElementById('s_bannerurl').addEventListener('input', refreshBannerPreview);
+  document.getElementById('s_bannerfile').addEventListener('change', refreshBannerPreview);
+
   function fileToBase64(file){
     return new Promise(function(resolve, reject){
       var reader = new FileReader();
@@ -638,8 +688,31 @@
 
   document.getElementById('btnCancel').addEventListener('click', clearForm);
 
-  document.getElementById('btnSaveSettings').addEventListener('click', function(){
+  document.getElementById('btnSaveSettings').addEventListener('click', async function(){
     state.waNumber = document.getElementById('s_wanumber').value.trim();
+
+    var bannerUrl = document.getElementById('s_bannerurl').value.trim();
+    var bannerFile = document.getElementById('s_bannerfile').files[0];
+    var banner = bannerUrl;
+    if (!banner && bannerFile){
+      try{ banner = await fileToBase64(bannerFile); }
+      catch(e){ banner = state.bannerImage || ''; }
+    }
+    if (!banner && !bannerFile){
+      banner = state.bannerImage || '';
+    }
+    state.bannerImage = banner || '';
+
+    saveDraft();
+    setBannerPreview(state.bannerImage || null);
+    renderPreview();
+  });
+
+  document.getElementById('btnClearBanner').addEventListener('click', function(){
+    state.bannerImage = '';
+    document.getElementById('s_bannerurl').value = '';
+    document.getElementById('s_bannerfile').value = '';
+    setBannerPreview(null);
     saveDraft();
     renderPreview();
   });
