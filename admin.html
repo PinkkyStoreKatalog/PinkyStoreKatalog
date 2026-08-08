@@ -285,6 +285,7 @@
     <h2>Daftar Produk (<span id="countLabel">0</span>)</h2>
     <div class="plist" id="plist"></div>
     <p class="empty-note" id="emptyNote" style="display:none;">Belum ada produk. Tambahkan lewat form di atas.</p>
+    <div class="status" id="listStatus"></div>
   </div>
 
   <!-- SETTINGS -->
@@ -305,6 +306,7 @@
       <button class="btn secondary" id="btnSaveSettings">Simpan Pengaturan</button>
       <button class="btn ghost" id="btnClearBanner">🗑️ Hapus Semua Gambar Banner</button>
     </div>
+    <div class="status" id="settingsStatus"></div>
   </div>
 
   <!-- PUBLISH -->
@@ -385,7 +387,12 @@
   }
 
   function saveDraft(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      return true;
+    }catch(e){
+      return false;
+    }
   }
 
   var statusTimers = new WeakMap();
@@ -628,9 +635,12 @@
   function deleteProduct(id){
     if (!confirm('Hapus produk ini dari daftar?')) return;
     state.products = state.products.filter(function(x){ return x.id !== id; });
-    saveDraft();
+    var saved = saveDraft();
     renderAll();
     if (editingId === id) clearForm();
+    if (!saved){
+      showStatus(document.getElementById('listStatus'), 'err', 'Produk terhapus di halaman ini, tapi GAGAL disimpan ke penyimpanan browser (kemungkinan penuh). Segera Download products.json sekarang.', 8000);
+    }
   }
 
   // ---------- lightbox (enlarge image) ----------
@@ -790,15 +800,20 @@
     } else {
       state.products.push(product);
     }
-    saveDraft();
+    var saved = saveDraft();
     renderAll();
     clearForm();
-    showStatus(status, 'ok', 'Produk tersimpan. Jangan lupa Download / Publish di bawah untuk menerapkannya ke toko.');
+    if (saved){
+      showStatus(status, 'ok', 'Produk tersimpan. Jangan lupa Download / Publish di bawah untuk menerapkannya ke toko.');
+    } else {
+      showStatus(status, 'err', 'Produk terupdate di halaman ini, tapi GAGAL disimpan ke penyimpanan browser (kemungkinan penuh karena gambar upload terlalu besar). Segera Download products.json sekarang sebelum refresh halaman, atau pakai link URL gambar alih-alih upload file.', 8000);
+    }
   });
 
   document.getElementById('btnCancel').addEventListener('click', clearForm);
 
   document.getElementById('btnSaveSettings').addEventListener('click', async function(){
+    var status = document.getElementById('settingsStatus');
     state.waNumber = document.getElementById('s_wanumber').value.trim();
 
     var newBannerImages = [];
@@ -820,20 +835,31 @@
     }
     state.bannerImages = newBannerImages;
 
-    saveDraft();
+    var saved = saveDraft();
     renderBannerSlots();
     renderPreview();
+    if (saved){
+      showStatus(status, 'ok', 'Pengaturan tersimpan. Jangan lupa Download / Publish di bawah untuk menerapkannya ke toko.');
+    } else {
+      showStatus(status, 'err', 'Pengaturan terupdate di halaman ini, tapi GAGAL disimpan ke penyimpanan browser (kemungkinan penuh karena gambar banner terlalu besar). Segera Download products.json sekarang sebelum refresh halaman, atau pakai link URL gambar alih-alih upload file.', 8000);
+    }
   });
 
   document.getElementById('btnClearBanner').addEventListener('click', function(){
+    var status = document.getElementById('settingsStatus');
     state.bannerImages = [];
     for (var i = 0; i < BANNER_MAX; i++){
       document.getElementById('s_bannerurl_' + i).value = '';
       document.getElementById('s_bannerfile_' + i).value = '';
     }
     renderBannerSlots();
-    saveDraft();
+    var saved = saveDraft();
     renderPreview();
+    if (saved){
+      showStatus(status, 'ok', 'Semua gambar banner dihapus. Jangan lupa Download / Publish di bawah untuk menerapkannya ke toko.');
+    } else {
+      showStatus(status, 'err', 'Gambar terhapus di halaman ini, tapi GAGAL disimpan ke penyimpanan browser. Segera Download products.json sekarang.', 8000);
+    }
   });
 
   // ---------- download ----------
